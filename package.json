@@ -2,7 +2,12 @@
   "name": "ai-code-review-diff-git",
   "displayName": "AI Code Review with Diff Git",
   "description": "Review modified files in your workspace using Gemini or Claude.",
-  "version": "0.1.2",
+  "icon": "./images/icon.png",
+  "version": "1.2.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amarkes/ai-code-review-diff-git"
+  },
   "publisher": "AICodereviewdiffgit",
   "engines": {
     "vscode": "^1.85.0"
