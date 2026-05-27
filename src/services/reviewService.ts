@@ -1,6 +1,13 @@
 import * as path from 'node:path';
 import type { WorkspaceConfiguration } from 'vscode';
-import type { ModifiedFile, ProviderId, ReviewRequest, ReviewResult } from '../shared/types';
+import { DEFAULT_CLAUDE_MODEL, DEFAULT_GEMINI_MODEL } from '../shared/models';
+import type {
+  ModifiedFile,
+  ProviderId,
+  ReviewLanguage,
+  ReviewRequest,
+  ReviewResult,
+} from '../shared/types';
 import { reviewWithClaude } from './ai/claudeProvider';
 import { reviewWithGemini } from './ai/geminiProvider';
 import type { GitService } from './gitService';
@@ -30,8 +37,8 @@ export class ReviewService {
 
     const model =
       provider === 'gemini'
-        ? (this.config.get<string>('aiCodeReview.geminiModel') ?? 'gemini-2.0-flash')
-        : (this.config.get<string>('aiCodeReview.claudeModel') ?? 'claude-sonnet-4-20250514');
+        ? (this.config.get<string>('aiCodeReview.geminiModel') ?? DEFAULT_GEMINI_MODEL)
+        : (this.config.get<string>('aiCodeReview.claudeModel') ?? DEFAULT_CLAUDE_MODEL);
 
     const filesWithDiff = await Promise.all(
       selected.map(async (file) => ({
@@ -41,10 +48,13 @@ export class ReviewService {
       })),
     );
 
+    const language = (this.config.get<ReviewLanguage>('aiCodeReview.language') ?? 'en') as ReviewLanguage;
+
     const request: ReviewRequest = {
       provider,
       model,
       apiKey,
+      language,
       files: filesWithDiff,
     };
 

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { ProviderId } from '@shared/types';
 import { Button } from './components/Button';
 import { FileList } from './components/FileList';
+import { ModelSelector } from './components/ModelSelector';
 import { ReviewResults } from './components/ReviewResults';
 import { useExtensionState } from './hooks/useExtensionState';
 
@@ -10,9 +11,11 @@ export function App() {
   const {
     state,
     error,
+    errorCode,
     apiKeyInput,
     setApiKeyInput,
     setProvider,
+    setModel,
     saveApiKey,
     clearApiKey,
     setLanguage,
@@ -21,12 +24,21 @@ export function App() {
     selectAll,
     runReview,
     hasCurrentKey,
+    currentKeyHint,
+    isEditingKey,
+    startEditingKey,
     currentModel,
     selectedCount,
   } = useExtensionState();
 
   const canReview =
     hasCurrentKey && selectedCount > 0 && !state.isReviewing && state.workspaceName;
+
+  const missingForReview = [
+    !hasCurrentKey && t('review.needApiKey'),
+    selectedCount === 0 && t('review.needFiles'),
+    !state.workspaceName && t('review.needWorkspace'),
+  ].filter(Boolean) as string[];
 
   return (
     <div className="flex min-h-screen flex-col gap-4 p-3">
@@ -64,36 +76,64 @@ export function App() {
             </Button>
           ))}
         </div>
-        <p className="text-xs text-vscode-muted">
-          {t('provider.model', { model: currentModel })}
-        </p>
       </section>
+
+      <ModelSelector
+        provider={state.provider}
+        value={currentModel}
+        onChange={(model) => setModel(state.provider, model)}
+      />
 
       <section className="space-y-2">
         <label className="text-sm font-semibold" htmlFor="api-key">
           {t('apiKey.label')}
         </label>
-        <div className="flex gap-2">
-          <input
-            id="api-key"
-            type="password"
-            value={apiKeyInput}
-            onChange={(e) => setApiKeyInput(e.target.value)}
-            placeholder={t('apiKey.placeholder')}
-            className="min-w-0 flex-1 rounded border border-vscode-inputBorder bg-vscode-input px-2 py-1.5 text-sm outline-none focus:border-vscode-focus"
-          />
-          <Button variant="secondary" onClick={saveApiKey} disabled={!apiKeyInput.trim()}>
-            {t('apiKey.save')}
-          </Button>
-          {hasCurrentKey && (
-            <Button variant="ghost" onClick={clearApiKey}>
-              {t('apiKey.clear')}
-            </Button>
-          )}
-        </div>
-        <p className={`text-xs ${hasCurrentKey ? 'text-green-400' : 'text-vscode-warning'}`}>
-          {hasCurrentKey ? t('apiKey.configured') : t('apiKey.missing')}
-        </p>
+
+        {hasCurrentKey && !isEditingKey ? (
+          <div className="space-y-2 rounded border border-green-500/30 bg-green-500/10 p-3">
+            <p className="text-sm text-green-400">{t('apiKey.configured')}</p>
+            {currentKeyHint && (
+              <p className="font-mono text-xs text-vscode-muted">
+                {t('apiKey.configuredHint', { hint: currentKeyHint })}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={startEditingKey}>
+                {t('apiKey.change')}
+              </Button>
+              <Button variant="ghost" onClick={clearApiKey}>
+                {t('apiKey.clear')}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <input
+                id="api-key"
+                type="password"
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && apiKeyInput.trim()) {
+                    saveApiKey();
+                  }
+                }}
+                placeholder={t('apiKey.placeholder')}
+                className="min-w-0 flex-1 rounded border border-vscode-inputBorder bg-vscode-input px-2 py-1.5 text-sm outline-none focus:border-vscode-focus"
+                autoFocus={isEditingKey}
+              />
+              <Button variant="secondary" onClick={saveApiKey} disabled={!apiKeyInput.trim()}>
+                {t('apiKey.save')}
+              </Button>
+            </div>
+            {!hasCurrentKey && (
+              <p className="text-xs text-vscode-warning">{t('apiKey.missing')}</p>
+            )}
+          </div>
+        )}
+
+        <p className="text-xs text-vscode-muted">{t('apiKey.persistNote')}</p>
       </section>
 
       <FileList
@@ -104,11 +144,18 @@ export function App() {
         onRefresh={refreshFiles}
       />
 
-      <Button className="w-full" onClick={runReview} disabled={!canReview}>
-        {state.isReviewing ? t('review.running') : t('review.run')}
-      </Button>
+      <div className="space-y-1">
+        <Button className="w-full" onClick={runReview} disabled={!canReview}>
+          {state.isReviewing ? t('review.running') : t('review.run')}
+        </Button>
+        {!canReview && missingForReview.length > 0 && (
+          <p className="text-center text-xs text-vscode-warning">
+            {t('review.disabledReason', { items: missingForReview.join(' · ') })}
+          </p>
+        )}
+      </div>
 
-      <ReviewResults result={state.lastReview} error={error} />
+      <ReviewResults result={state.lastReview} error={error} errorCode={errorCode} />
     </div>
   );
 }

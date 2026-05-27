@@ -9,44 +9,63 @@ const defaultState: WebviewState = {
   language: 'en',
   hasGeminiKey: false,
   hasClaudeKey: false,
+  geminiKeyHint: null,
+  claudeKeyHint: null,
   files: [],
   selectedPaths: [],
   workspaceName: null,
   isReviewing: false,
   lastReview: null,
-  geminiModel: 'gemini-2.0-flash',
-  claudeModel: 'claude-sonnet-4-20250514',
+  geminiModel: 'gemini-2.5-flash-lite',
+  claudeModel: 'claude-3-5-haiku-20241022',
 };
 
 export function useExtensionState() {
   const { i18n } = useTranslation();
   const [state, setState] = useState<WebviewState>(defaultState);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [apiKeyInput, setApiKeyInput] = useState('');
+  const [isEditingKey, setIsEditingKey] = useState(false);
 
   useEffect(() => {
-    postMessage({ type: 'ready' });
-    return onExtensionMessage((message) => {
+    const unsubscribe = onExtensionMessage((message) => {
       switch (message.type) {
         case 'state':
           setState(message.payload);
           void i18n.changeLanguage(message.payload.language);
+          if (
+            message.payload.provider === 'gemini'
+              ? message.payload.hasGeminiKey
+              : message.payload.hasClaudeKey
+          ) {
+            setIsEditingKey(false);
+          }
           break;
         case 'reviewFailed':
           setError(message.error);
+          setErrorCode(message.errorCode ?? null);
           break;
         case 'reviewCompleted':
           setError(null);
+          setErrorCode(null);
           break;
         case 'reviewStarted':
           setError(null);
+          setErrorCode(null);
           break;
       }
     });
+    postMessage({ type: 'ready' });
+    return unsubscribe;
   }, [i18n]);
 
   const setProvider = useCallback((provider: ProviderId) => {
     postMessage({ type: 'setProvider', provider });
+  }, []);
+
+  const setModel = useCallback((provider: ProviderId, model: string) => {
+    postMessage({ type: 'setModel', provider, model });
   }, []);
 
   const saveApiKey = useCallback(() => {
@@ -85,17 +104,30 @@ export function useExtensionState() {
   const hasCurrentKey =
     state.provider === 'gemini' ? state.hasGeminiKey : state.hasClaudeKey;
 
+  const currentKeyHint =
+    state.provider === 'gemini' ? state.geminiKeyHint : state.claudeKeyHint;
+
   const currentModel =
     state.provider === 'gemini' ? state.geminiModel : state.claudeModel;
 
   const selectedCount = state.files.filter((f) => f.selected).length;
 
+  const startEditingKey = useCallback(() => {
+    setIsEditingKey(true);
+    setApiKeyInput('');
+  }, []);
+
   return {
     state,
     error,
+    errorCode,
     apiKeyInput,
     setApiKeyInput,
+    isEditingKey,
+    setIsEditingKey,
+    startEditingKey,
     setProvider,
+    setModel,
     saveApiKey,
     clearApiKey,
     setLanguage,
@@ -104,6 +136,7 @@ export function useExtensionState() {
     selectAll,
     runReview,
     hasCurrentKey,
+    currentKeyHint,
     currentModel,
     selectedCount,
   };

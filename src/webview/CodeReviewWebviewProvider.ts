@@ -2,9 +2,16 @@ import * as vscode from 'vscode';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { WebviewToExtensionMessage, ExtensionToWebviewMessage, WebviewState } from '../shared/messages';
+import {
+  DEFAULT_CLAUDE_MODEL,
+  DEFAULT_GEMINI_MODEL,
+  defaultModelForProvider,
+  isKnownModel,
+} from '../shared/models';
 import type { ModifiedFile, ProviderId, ReviewResult } from '../shared/types';
 import { GitService } from '../services/gitService';
 import { ReviewService } from '../services/reviewService';
+import { isReviewError } from '../services/ai/apiErrors';
 import { SecretsService } from '../services/secretsService';
 
 export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
@@ -37,6 +44,18 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage((message: WebviewToExtensionMessage) => {
       void this.handleMessage(message);
     });
+
+    webviewView.onDidChangeVisibility(() => {
+      if (webviewView.visible) {
+        void this.refreshFiles().then(() => this.postState());
+      }
+    });
+
+    this.context.secrets.onDidChange((e) => {
+      if (e.key.startsWith('aiCodeReview.apiKey.')) {
+        this.postState();
+      }
+    });
   }
 
   async refreshFromCommand(): Promise<void> {
@@ -51,10 +70,25 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
         await this.refreshFiles();
         this.postState();
         break;
-      case 'setProvider':
+      case 'setProvider': {
         await this.updateConfig('aiCodeReview.provider', message.provider);
+        const config = vscode.workspace.getConfiguration();
+        const modelKey =
+          message.provider === 'gemini' ? 'aiCodeReview.geminiModel' : 'aiCodeReview.claudeModel';
+        const currentModel = config.get<string>(modelKey) ?? '';
+        if (!isKnownModel(message.provider, currentModel)) {
+          await this.updateConfig(modelKey, defaultModelForProvider(message.provider));
+        }
         this.postState();
         break;
+      }
+      case 'setModel': {
+        const modelKey =
+          message.provider === 'gemini' ? 'aiCodeReview.geminiModel' : 'aiCodeReview.claudeModel';
+        await this.updateConfig(modelKey, message.model);
+        this.postState();
+        break;
+      }
       case 'setApiKey':
         await SecretsService.fromContext(this.context).setApiKey(
           message.provider,
@@ -124,7 +158,8 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
       this.post({ type: 'reviewCompleted', result });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.post({ type: 'reviewFailed', error: message });
+      const errorCode = isReviewError(error) ? error.code : undefined;
+      this.post({ type: 'reviewFailed', error: message, errorCode });
     } finally {
       this.isReviewing = false;
       this.postState();
@@ -156,18 +191,27 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
     const secrets = SecretsService.fromContext(this.context);
     const folder = vscode.workspace.workspaceFolders?.[0];
 
+    const [hasGeminiKey, hasClaudeKey, geminiKeyHint, claudeKeyHint] = await Promise.all([
+      secrets.hasApiKey('gemini'),
+      secrets.hasApiKey('claude'),
+      secrets.getApiKeyHint('gemini'),
+      secrets.getApiKeyHint('claude'),
+    ]);
+
     return {
       provider: (config.get<ProviderId>('aiCodeReview.provider') ?? 'gemini') as ProviderId,
       language: (config.get<'en' | 'pt'>('aiCodeReview.language') ?? 'en') as 'en' | 'pt',
-      hasGeminiKey: await secrets.hasApiKey('gemini'),
-      hasClaudeKey: await secrets.hasApiKey('claude'),
+      hasGeminiKey,
+      hasClaudeKey,
+      geminiKeyHint,
+      claudeKeyHint,
       files: this.files,
       selectedPaths: this.files.filter((f) => f.selected).map((f) => f.path),
       workspaceName: folder?.name ?? null,
       isReviewing: this.isReviewing,
       lastReview: this.lastReview,
-      geminiModel: config.get<string>('aiCodeReview.geminiModel') ?? 'gemini-2.0-flash',
-      claudeModel: config.get<string>('aiCodeReview.claudeModel') ?? 'claude-sonnet-4-20250514',
+      geminiModel: config.get<string>('aiCodeReview.geminiModel') ?? DEFAULT_GEMINI_MODEL,
+      claudeModel: config.get<string>('aiCodeReview.claudeModel') ?? DEFAULT_CLAUDE_MODEL,
     };
   }
 

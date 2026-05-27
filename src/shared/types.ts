@@ -19,6 +19,8 @@ export interface FileReview {
   path: string;
   summary: string;
   findings: FileReviewFinding[];
+  /** 0–100 quality score for this file */
+  qualityScore?: number;
 }
 
 export interface ReviewResult {
@@ -26,14 +28,19 @@ export interface ReviewResult {
   model: string;
   reviewedAt: string;
   overallSummary: string;
+  /** 0–100 overall quality score */
+  qualityScore: number;
   files: FileReview[];
   rawMarkdown?: string;
 }
+
+export type ReviewLanguage = 'en' | 'pt';
 
 export interface ReviewRequest {
   provider: ProviderId;
   model: string;
   apiKey: string;
+  language: ReviewLanguage;
   files: Array<{
     path: string;
     status: FileChangeStatus;

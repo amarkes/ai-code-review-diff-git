@@ -7,16 +7,27 @@
   "provider": {
     "label": "AI Provider",
     "gemini": "Google Gemini",
-    "claude": "Anthropic Claude",
-    "model": "Model: {{model}}"
+    "claude": "Anthropic Claude"
+  },
+  "model": {
+    "label": "Model",
+    "hint": "Economy models use less quota (recommended on free tier).",
+    "tier": {
+      "economy": "economy",
+      "balanced": "balanced",
+      "quality": "quality"
+    }
   },
   "apiKey": {
     "label": "API Key",
     "placeholder": "Paste your API key",
     "save": "Save key",
-    "clear": "Clear",
-    "configured": "Key saved securely",
-    "missing": "Add an API key to run reviews"
+    "clear": "Remove",
+    "change": "Change key",
+    "configured": "Key saved — persists after restart",
+    "configuredHint": "Saved key: {{hint}}",
+    "missing": "Add an API key once; it will be stored securely",
+    "persistNote": "Stored in your IDE keychain, not in project files."
   },
   "files": {
     "title": "Modified files",
@@ -28,11 +39,31 @@
   },
   "review": {
     "run": "Run review",
+    "disabledReason": "To enable: {{items}}",
+    "needApiKey": "save an API key",
+    "needFiles": "select at least one file",
+    "needWorkspace": "open a workspace folder",
     "running": "Reviewing…",
+    "qualityScore": "Code quality",
+    "score": {
+      "excellent": "Excellent — ready to merge",
+      "good": "Good — minor improvements possible",
+      "fair": "Fair — address warnings before merge",
+      "poor": "Needs work — critical issues found"
+    },
     "overall": "Overall summary",
     "findings": "Findings",
     "noFindings": "No issues reported for this file.",
     "error": "Review failed",
+    "errors": {
+      "quota_exceeded": "API quota exceeded. Wait for reset, enable billing, or switch to Claude in the panel.",
+      "rate_limited": "Too many requests. Wait a minute or review fewer files.",
+      "invalid_api_key": "Invalid API key. Remove and save a new key.",
+      "forbidden": "Access denied by the API. Check key permissions and project settings.",
+      "model_not_found": "Model not found. Update the model name in extension settings.",
+      "payload_too_large": "Diff too large. Select fewer or smaller files.",
+      "unknown": "Unexpected API error."
+    },
     "severity": {
       "critical": "Critical",
       "warning": "Warning",

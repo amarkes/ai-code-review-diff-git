@@ -1,4 +1,5 @@
 import type { ReviewRequest, ReviewResult } from '../../shared/types';
+import { throwProviderApiError } from './apiErrors';
 import { buildReviewPrompt } from './promptBuilder';
 import { parseReviewResponse } from './responseParser';
 
@@ -24,7 +25,7 @@ export async function reviewWithClaude(request: ReviewRequest): Promise<ReviewRe
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Claude API error (${response.status}): ${body.slice(0, 300)}`);
+    throwProviderApiError('claude', response.status, body);
   }
 
   const data = (await response.json()) as {

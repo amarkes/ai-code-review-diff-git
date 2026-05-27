@@ -1,9 +1,9 @@
 {
-  "name": "ai-code-review",
+  "name": "ai-code-review-diff-git",
   "displayName": "AI Code Review",
   "description": "Review modified files in your workspace using Gemini or Claude.",
   "version": "0.1.0",
-  "publisher": "local",
+  "publisher": "AICodereviewdiffgit",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -62,12 +62,12 @@
         },
         "aiCodeReview.geminiModel": {
           "type": "string",
-          "default": "gemini-2.0-flash",
+          "default": "gemini-2.5-flash-lite",
           "description": "%config.geminiModel.description%"
         },
         "aiCodeReview.claudeModel": {
           "type": "string",
-          "default": "claude-sonnet-4-20250514",
+          "default": "claude-3-5-haiku-20241022",
           "description": "%config.claudeModel.description%"
         },
         "aiCodeReview.language": {
@@ -84,6 +84,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
+    "compile": "npm run build",
     "build": "npm run build:extension && npm run build:webview",
     "build:extension": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
     "build:webview": "cd webview-ui && npm run build",

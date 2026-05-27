@@ -7,16 +7,27 @@
   "provider": {
     "label": "Provedor de IA",
     "gemini": "Google Gemini",
-    "claude": "Anthropic Claude",
-    "model": "Modelo: {{model}}"
+    "claude": "Anthropic Claude"
+  },
+  "model": {
+    "label": "Modelo",
+    "hint": "Modelos economy gastam menos cota (recomendado no plano gratuito).",
+    "tier": {
+      "economy": "econômico",
+      "balanced": "equilibrado",
+      "quality": "qualidade"
+    }
   },
   "apiKey": {
     "label": "Chave de API",
     "placeholder": "Cole sua chave de API",
     "save": "Salvar chave",
-    "clear": "Limpar",
-    "configured": "Chave salva com segurança",
-    "missing": "Adicione uma chave de API para executar revisões"
+    "clear": "Remover",
+    "change": "Alterar chave",
+    "configured": "Chave salva — permanece após reiniciar",
+    "configuredHint": "Chave salva: {{hint}}",
+    "missing": "Adicione a chave uma vez; ela ficará armazenada com segurança",
+    "persistNote": "Guardada no keychain da IDE, não em arquivos do projeto."
   },
   "files": {
     "title": "Arquivos modificados",
@@ -28,11 +39,31 @@
   },
   "review": {
     "run": "Executar revisão",
+    "disabledReason": "Para habilitar: {{items}}",
+    "needApiKey": "salve uma chave de API",
+    "needFiles": "selecione pelo menos um arquivo",
+    "needWorkspace": "abra uma pasta no workspace",
     "running": "Revisando…",
+    "qualityScore": "Qualidade do código",
+    "score": {
+      "excellent": "Excelente — pronto para merge",
+      "good": "Bom — melhorias menores possíveis",
+      "fair": "Regular — corrija avisos antes do merge",
+      "poor": "Precisa de trabalho — problemas críticos encontrados"
+    },
     "overall": "Resumo geral",
     "findings": "Achados",
     "noFindings": "Nenhum problema reportado para este arquivo.",
     "error": "Falha na revisão",
+    "errors": {
+      "quota_exceeded": "Cota da API esgotada. Aguarde o reset, ative billing no Google AI / Anthropic, ou troque para Claude/Gemini no painel.",
+      "rate_limited": "Muitas requisições. Aguarde um minuto ou revise menos arquivos.",
+      "invalid_api_key": "Chave de API inválida. Remova e salve uma nova chave.",
+      "forbidden": "Acesso negado pela API. Verifique permissões da chave e do projeto.",
+      "model_not_found": "Modelo não encontrado. Ajuste o nome do modelo nas configurações da extensão.",
+      "payload_too_large": "Diff muito grande. Selecione menos arquivos ou arquivos menores.",
+      "unknown": "Erro inesperado da API."
+    },
     "severity": {
       "critical": "Crítico",
       "warning": "Aviso",

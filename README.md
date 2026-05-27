@@ -48,8 +48,8 @@ npm run watch
 | Chave | Descrição | Padrão |
 |-------|-----------|--------|
 | `aiCodeReview.provider` | `gemini` ou `claude` | `gemini` |
-| `aiCodeReview.geminiModel` | Modelo Gemini | `gemini-2.0-flash` |
-| `aiCodeReview.claudeModel` | Modelo Claude | `claude-sonnet-4-20250514` |
+| `aiCodeReview.geminiModel` | Modelo Gemini | `gemini-2.5-flash-lite` (mais barato) |
+| `aiCodeReview.claudeModel` | Modelo Claude | `claude-3-5-haiku-20241022` (mais barato) |
 | `aiCodeReview.language` | `en` ou `pt` | `en` |
 
 ## Estrutura do projeto
@@ -67,10 +67,25 @@ dist/                # Build de produção
 ## Empacotar
 
 ```bash
+./build.sh
+```
+
+O script interativo (igual ao do projeto 4096):
+
+1. Escolhe bump de versão (patch / minor / major)
+2. Pede linhas para o `CHANGELOG.md`
+3. Atualiza `package.json`
+4. Roda `npm run compile` (build da extensão + webview)
+5. Gera `ai-code-review-diff-git-X.Y.Z.vsix` na raiz do projeto
+
+Alternativa manual:
+
+```bash
+npm run compile
 npm run package
 ```
 
-Gera um arquivo `.vsix` instalável em VS Code/Cursor via **Extensions: Install from VSIX**.
+Instale o `.vsix` no VS Code/Cursor via **Extensions: Install from VSIX**.
 
 ## Segurança
 

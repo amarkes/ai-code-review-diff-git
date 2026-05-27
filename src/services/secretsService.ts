@@ -29,4 +29,14 @@ export class SecretsService {
     const key = await this.getApiKey(provider);
     return Boolean(key?.trim());
   }
+
+  async getApiKeyHint(provider: ProviderId): Promise<string | null> {
+    const key = await this.getApiKey(provider);
+    if (!key?.trim()) {
+      return null;
+    }
+    const trimmed = key.trim();
+    const suffix = trimmed.slice(-4);
+    return `••••••${suffix}`;
+  }
 }

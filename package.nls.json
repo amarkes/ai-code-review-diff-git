@@ -4,7 +4,7 @@
   "commands.openPanel.title": "Open AI Code Review",
   "commands.refreshFiles.title": "Refresh Modified Files",
   "config.provider.description": "Default AI provider for code reviews.",
-  "config.geminiModel.description": "Gemini model id (e.g. gemini-2.0-flash).",
+  "config.geminiModel.description": "Gemini model id (default: gemini-2.5-flash-lite, cheapest).",
   "config.claudeModel.description": "Claude model id.",
   "config.language.description": "UI language for the extension panel."
 }
