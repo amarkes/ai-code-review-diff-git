@@ -1,0 +1,53 @@
+{
+  "app": {
+    "title": "Revisão de Código IA",
+    "workspace": "Workspace: {{name}}",
+    "noWorkspace": "Abra uma pasta para revisar alterações."
+  },
+  "provider": {
+    "label": "Provedor de IA",
+    "gemini": "Google Gemini",
+    "claude": "Anthropic Claude",
+    "model": "Modelo: {{model}}"
+  },
+  "apiKey": {
+    "label": "Chave de API",
+    "placeholder": "Cole sua chave de API",
+    "save": "Salvar chave",
+    "clear": "Limpar",
+    "configured": "Chave salva com segurança",
+    "missing": "Adicione uma chave de API para executar revisões"
+  },
+  "files": {
+    "title": "Arquivos modificados",
+    "empty": "Nenhum arquivo modificado neste workspace.",
+    "refresh": "Atualizar",
+    "selectAll": "Selecionar todos",
+    "deselectAll": "Desmarcar todos",
+    "selected": "{{count}} selecionado(s)"
+  },
+  "review": {
+    "run": "Executar revisão",
+    "running": "Revisando…",
+    "overall": "Resumo geral",
+    "findings": "Achados",
+    "noFindings": "Nenhum problema reportado para este arquivo.",
+    "error": "Falha na revisão",
+    "severity": {
+      "critical": "Crítico",
+      "warning": "Aviso",
+      "suggestion": "Sugestão",
+      "info": "Info"
+    }
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "status": {
+    "added": "novo",
+    "modified": "modificado",
+    "deleted": "removido",
+    "renamed": "renomeado",
+    "copied": "copiado"
+  }
+}

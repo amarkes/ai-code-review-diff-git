@@ -1,0 +1,10 @@
+{
+  "views.activitybar.title": "AI Code Review",
+  "views.sidebar.name": "Code Review",
+  "commands.openPanel.title": "Open AI Code Review",
+  "commands.refreshFiles.title": "Refresh Modified Files",
+  "config.provider.description": "Default AI provider for code reviews.",
+  "config.geminiModel.description": "Gemini model id (e.g. gemini-2.0-flash).",
+  "config.claudeModel.description": "Claude model id.",
+  "config.language.description": "UI language for the extension panel."
+}

@@ -1,0 +1,17 @@
+.vscode/**
+.vscode-test/**
+src/**
+webview-ui/src/**
+webview-ui/node_modules/**
+node_modules/**
+.gitignore
+tsconfig.json
+**/*.map
+**/*.ts
+!dist/**
+webview-ui/package.json
+webview-ui/tsconfig.json
+webview-ui/vite.config.ts
+webview-ui/tailwind.config.js
+webview-ui/postcss.config.js
+.eslintrc.json

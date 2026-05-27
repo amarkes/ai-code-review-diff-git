@@ -1,0 +1,53 @@
+{
+  "app": {
+    "title": "AI Code Review",
+    "workspace": "Workspace: {{name}}",
+    "noWorkspace": "Open a folder to review changes."
+  },
+  "provider": {
+    "label": "AI Provider",
+    "gemini": "Google Gemini",
+    "claude": "Anthropic Claude",
+    "model": "Model: {{model}}"
+  },
+  "apiKey": {
+    "label": "API Key",
+    "placeholder": "Paste your API key",
+    "save": "Save key",
+    "clear": "Clear",
+    "configured": "Key saved securely",
+    "missing": "Add an API key to run reviews"
+  },
+  "files": {
+    "title": "Modified files",
+    "empty": "No modified files in this workspace.",
+    "refresh": "Refresh",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "selected": "{{count}} selected"
+  },
+  "review": {
+    "run": "Run review",
+    "running": "Reviewing…",
+    "overall": "Overall summary",
+    "findings": "Findings",
+    "noFindings": "No issues reported for this file.",
+    "error": "Review failed",
+    "severity": {
+      "critical": "Critical",
+      "warning": "Warning",
+      "suggestion": "Suggestion",
+      "info": "Info"
+    }
+  },
+  "language": {
+    "label": "Language"
+  },
+  "status": {
+    "added": "added",
+    "modified": "modified",
+    "deleted": "deleted",
+    "renamed": "renamed",
+    "copied": "copied"
+  }
+}

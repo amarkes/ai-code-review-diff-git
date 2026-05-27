@@ -1,0 +1,109 @@
+{
+  "name": "ai-code-review",
+  "displayName": "AI Code Review",
+  "description": "Review modified files in your workspace using Gemini or Claude.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:aiCodeReview.sidebar",
+    "onCommand:aiCodeReview.openPanel"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ai-code-review",
+          "title": "%views.activitybar.title%",
+          "icon": "$(comment-discussion)"
+        }
+      ]
+    },
+    "views": {
+      "ai-code-review": [
+        {
+          "type": "webview",
+          "id": "aiCodeReview.sidebar",
+          "name": "%views.sidebar.name%"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "aiCodeReview.openPanel",
+        "title": "%commands.openPanel.title%",
+        "category": "AI Code Review",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "aiCodeReview.refreshFiles",
+        "title": "%commands.refreshFiles.title%",
+        "category": "AI Code Review",
+        "icon": "$(refresh)"
+      }
+    ],
+    "configuration": {
+      "title": "AI Code Review",
+      "properties": {
+        "aiCodeReview.provider": {
+          "type": "string",
+          "enum": [
+            "gemini",
+            "claude"
+          ],
+          "default": "gemini",
+          "description": "%config.provider.description%"
+        },
+        "aiCodeReview.geminiModel": {
+          "type": "string",
+          "default": "gemini-2.0-flash",
+          "description": "%config.geminiModel.description%"
+        },
+        "aiCodeReview.claudeModel": {
+          "type": "string",
+          "default": "claude-sonnet-4-20250514",
+          "description": "%config.claudeModel.description%"
+        },
+        "aiCodeReview.language": {
+          "type": "string",
+          "enum": [
+            "en",
+            "pt"
+          ],
+          "default": "en",
+          "description": "%config.language.description%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:extension && npm run build:webview",
+    "build:extension": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "build:webview": "cd webview-ui && npm run build",
+    "watch": "concurrently \"npm run watch:extension\" \"npm run watch:webview\"",
+    "watch:extension": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
+    "watch:webview": "cd webview-ui && npm run dev",
+    "lint": "eslint src --ext .ts",
+    "package": "vsce package",
+    "postinstall": "cd webview-ui && npm install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.21.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.0",
+    "@vscode/vsce": "^2.24.0"
+  },
+  "dependencies": {}
+}

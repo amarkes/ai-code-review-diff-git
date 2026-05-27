@@ -1,0 +1,10 @@
+{
+  "views.activitybar.title": "Revisão de Código IA",
+  "views.sidebar.name": "Revisão de Código",
+  "commands.openPanel.title": "Abrir Revisão de Código IA",
+  "commands.refreshFiles.title": "Atualizar Arquivos Modificados",
+  "config.provider.description": "Provedor de IA padrão para revisões de código.",
+  "config.geminiModel.description": "Id do modelo Gemini (ex.: gemini-2.0-flash).",
+  "config.claudeModel.description": "Id do modelo Claude.",
+  "config.language.description": "Idioma da interface do painel da extensão."
+}
