@@ -1,8 +1,8 @@
 {
   "name": "ai-code-review-diff-git",
-  "displayName": "AI Code Review",
+  "displayName": "AI Code Review with Diff Git",
   "description": "Review modified files in your workspace using Gemini or Claude.",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "publisher": "AICodereviewdiffgit",
   "engines": {
     "vscode": "^1.85.0"
