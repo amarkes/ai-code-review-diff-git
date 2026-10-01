@@ -1,3 +1,4 @@
+import { calculateEstimatedCost } from '../../shared/pricing';
 import type { ReviewRequest, ReviewResult } from '../../shared/types';
 import { throwProviderApiError } from './apiErrors';
 import { buildReviewPrompt } from './promptBuilder';
@@ -30,6 +31,10 @@ export async function reviewWithClaude(request: ReviewRequest): Promise<ReviewRe
 
   const data = (await response.json()) as {
     content?: Array<{ type: string; text?: string }>;
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+    };
   };
 
   const text = data.content?.find((block) => block.type === 'text')?.text ?? '';
@@ -37,5 +42,25 @@ export async function reviewWithClaude(request: ReviewRequest): Promise<ReviewRe
     throw new Error('Claude returned an empty response.');
   }
 
-  return parseReviewResponse(text, request);
+  const result = parseReviewResponse(text, request);
+
+  const promptTokens = data.usage?.input_tokens ?? Math.round(prompt.length / 4);
+  const completionTokens = data.usage?.output_tokens ?? Math.round(text.length / 4);
+  const totalTokens = promptTokens + completionTokens;
+
+  const estimatedCostUsd = calculateEstimatedCost(
+    'claude',
+    request.model,
+    promptTokens,
+    completionTokens,
+  );
+
+  result.usage = {
+    promptTokens,
+    completionTokens,
+    totalTokens,
+    estimatedCostUsd,
+  };
+
+  return result;
 }

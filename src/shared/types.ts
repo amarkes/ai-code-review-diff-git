@@ -23,6 +23,13 @@ export interface FileReview {
   qualityScore?: number;
 }
 
+export interface ReviewUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  estimatedCostUsd: number;
+}
+
 export interface ReviewResult {
   provider: ProviderId;
   model: string;
@@ -32,6 +39,31 @@ export interface ReviewResult {
   qualityScore: number;
   files: FileReview[];
   rawMarkdown?: string;
+  usage?: ReviewUsage;
+}
+
+export interface ReviewHistoryEntry {
+  id: string;
+  timestamp: string;
+  workspaceName: string;
+  provider: ProviderId;
+  model: string;
+  filesCount: number;
+  qualityScore: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  estimatedCostUsd: number;
+  overallSummary: string;
+}
+
+export interface HistoryStats {
+  totalReviews: number;
+  totalCostUsd: number;
+  totalPromptTokens: number;
+  totalCompletionTokens: number;
+  totalTokens: number;
+  avgQualityScore: number;
 }
 
 export type ReviewLanguage = 'en' | 'pt';

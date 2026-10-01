@@ -15,6 +15,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiCodeReview.openPanel', async () => {
       await vscode.commands.executeCommand('workbench.view.extension.ai-code-review');
     }),
+    vscode.commands.registerCommand('aiCodeReview.openInEditor', async () => {
+      await webviewProvider?.openInEditor();
+    }),
     vscode.commands.registerCommand('aiCodeReview.refreshFiles', async () => {
       await webviewProvider?.refreshFromCommand();
     }),

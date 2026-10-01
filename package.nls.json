@@ -2,6 +2,7 @@
   "views.activitybar.title": "AI Code Review",
   "views.sidebar.name": "Code Review",
   "commands.openPanel.title": "Open AI Code Review",
+  "commands.openInEditor.title": "Open as Editor Tab (Centered)",
   "commands.refreshFiles.title": "Refresh Modified Files",
   "config.provider.description": "Default AI provider for code reviews.",
   "config.geminiModel.description": "Gemini model id (default: gemini-3.5-flash-lite, cheapest).",

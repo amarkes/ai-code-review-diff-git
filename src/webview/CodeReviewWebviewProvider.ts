@@ -8,7 +8,8 @@ import {
   defaultModelForProvider,
   isKnownModel,
 } from '../shared/models';
-import type { ModifiedFile, ProviderId, ReviewResult } from '../shared/types';
+import { HistoryService } from '../services/historyService';
+import type { ModifiedFile, ProviderId, ReviewHistoryEntry, ReviewResult } from '../shared/types';
 import { GitService } from '../services/gitService';
 import { ReviewService } from '../services/reviewService';
 import { isReviewError } from '../services/ai/apiErrors';
@@ -18,14 +19,19 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'aiCodeReview.sidebar';
 
   private view?: vscode.WebviewView;
+  private editorPanel?: vscode.WebviewPanel;
+  private readonly activeWebviews = new Set<vscode.Webview>();
   private files: ModifiedFile[] = [];
   private isReviewing = false;
   private lastReview: ReviewResult | null = null;
+  private readonly historyService: HistoryService;
 
   constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly context: vscode.ExtensionContext,
-  ) {}
+  ) {
+    this.historyService = new HistoryService(this.context);
+  }
 
   resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -33,6 +39,7 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
     _token: vscode.CancellationToken,
   ): void {
     this.view = webviewView;
+    this.activeWebviews.add(webviewView.webview);
 
     webviewView.webview.options = {
       enableScripts: true,
@@ -43,6 +50,13 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.onDidReceiveMessage((message: WebviewToExtensionMessage) => {
       void this.handleMessage(message);
+    });
+
+    webviewView.onDidDispose(() => {
+      this.activeWebviews.delete(webviewView.webview);
+      if (this.view === webviewView) {
+        this.view = undefined;
+      }
     });
 
     webviewView.onDidChangeVisibility(() => {
@@ -56,6 +70,41 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
         this.postState();
       }
     });
+  }
+
+  async openInEditor(): Promise<void> {
+    if (this.editorPanel) {
+      this.editorPanel.reveal(vscode.ViewColumn.Active);
+      return;
+    }
+
+    const panel = vscode.window.createWebviewPanel(
+      'aiCodeReview.editorTab',
+      'AI Code Review',
+      vscode.ViewColumn.Active,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        localResourceRoots: [vscode.Uri.joinPath(this.extensionUri, 'dist', 'webview')],
+      },
+    );
+
+    panel.iconPath = vscode.Uri.joinPath(this.extensionUri, 'images', 'icon.png');
+    panel.webview.html = this.getHtml(panel.webview);
+    this.editorPanel = panel;
+    this.activeWebviews.add(panel.webview);
+
+    panel.webview.onDidReceiveMessage((message: WebviewToExtensionMessage) => {
+      void this.handleMessage(message);
+    });
+
+    panel.onDidDispose(() => {
+      this.activeWebviews.delete(panel.webview);
+      this.editorPanel = undefined;
+    });
+
+    await this.refreshFiles();
+    this.postState();
   }
 
   async refreshFromCommand(): Promise<void> {
@@ -127,6 +176,16 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
       case 'runReview':
         await this.runReview();
         break;
+      case 'copyToClipboard':
+        await vscode.env.clipboard.writeText(message.text);
+        break;
+      case 'clearHistory':
+        await this.historyService.clearHistory();
+        this.postState();
+        break;
+      case 'openInEditor':
+        await this.openInEditor();
+        break;
     }
   }
 
@@ -155,6 +214,24 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
 
       const result = await reviewService.runReview(provider, this.files);
       this.lastReview = result;
+
+      const selectedFiles = this.files.filter((f) => f.selected);
+      const historyEntry: ReviewHistoryEntry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        timestamp: result.reviewedAt,
+        workspaceName: folder.name,
+        provider: result.provider,
+        model: result.model,
+        filesCount: selectedFiles.length,
+        qualityScore: result.qualityScore,
+        promptTokens: result.usage?.promptTokens ?? 0,
+        completionTokens: result.usage?.completionTokens ?? 0,
+        totalTokens: result.usage?.totalTokens ?? 0,
+        estimatedCostUsd: result.usage?.estimatedCostUsd ?? 0,
+        overallSummary: result.overallSummary,
+      };
+      await this.historyService.addEntry(historyEntry);
+
       this.post({ type: 'reviewCompleted', result });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -198,6 +275,18 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
       secrets.getApiKeyHint('claude'),
     ]);
 
+    let geminiModel = config.get<string>('aiCodeReview.geminiModel') ?? DEFAULT_GEMINI_MODEL;
+    if (!isKnownModel('gemini', geminiModel)) {
+      geminiModel = DEFAULT_GEMINI_MODEL;
+      void this.updateConfig('aiCodeReview.geminiModel', DEFAULT_GEMINI_MODEL);
+    }
+
+    let claudeModel = config.get<string>('aiCodeReview.claudeModel') ?? DEFAULT_CLAUDE_MODEL;
+    if (!isKnownModel('claude', claudeModel)) {
+      claudeModel = DEFAULT_CLAUDE_MODEL;
+      void this.updateConfig('aiCodeReview.claudeModel', DEFAULT_CLAUDE_MODEL);
+    }
+
     return {
       provider: (config.get<ProviderId>('aiCodeReview.provider') ?? 'gemini') as ProviderId,
       language: (config.get<'en' | 'pt'>('aiCodeReview.language') ?? 'en') as 'en' | 'pt',
@@ -210,8 +299,11 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
       workspaceName: folder?.name ?? null,
       isReviewing: this.isReviewing,
       lastReview: this.lastReview,
-      geminiModel: config.get<string>('aiCodeReview.geminiModel') ?? DEFAULT_GEMINI_MODEL,
-      claudeModel: config.get<string>('aiCodeReview.claudeModel') ?? DEFAULT_CLAUDE_MODEL,
+      lastReviewTimestamp: this.historyService.getLastReviewTimestamp(),
+      history: this.historyService.getHistory(),
+      historyStats: this.historyService.getStats(),
+      geminiModel,
+      claudeModel,
     };
   }
 
@@ -222,7 +314,9 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   private post(message: ExtensionToWebviewMessage): void {
-    void this.view?.webview.postMessage(message);
+    for (const webview of this.activeWebviews) {
+      void webview.postMessage(message);
+    }
   }
 
   private async updateConfig<T>(key: string, value: T): Promise<void> {

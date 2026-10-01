@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import type { ReviewResult } from '@shared/types';
+import type { ReviewLanguage, ReviewResult } from '@shared/types';
+import { FixPrompt } from './FixPrompt';
 import { QualityScore } from './QualityScore';
 
 interface ReviewResultsProps {
   result: ReviewResult | null;
   error: string | null;
   errorCode?: string | null;
+  language: ReviewLanguage;
 }
 
 const severityBorder: Record<string, string> = {
@@ -15,7 +17,7 @@ const severityBorder: Record<string, string> = {
   info: 'border-l-gray-400',
 };
 
-export function ReviewResults({ result, error, errorCode }: ReviewResultsProps) {
+export function ReviewResults({ result, error, errorCode, language }: ReviewResultsProps) {
   const { t } = useTranslation();
 
   if (error) {
@@ -48,6 +50,8 @@ export function ReviewResults({ result, error, errorCode }: ReviewResultsProps) 
           <p className="mt-1 text-sm leading-relaxed">{result.overallSummary}</p>
         </div>
       </div>
+
+      <FixPrompt result={result} language={language} />
 
       {result.files.map((file) => (
         <article key={file.path} className="rounded border border-vscode-border p-3">

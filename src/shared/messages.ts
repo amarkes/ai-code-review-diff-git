@@ -1,4 +1,10 @@
-import type { ModifiedFile, ProviderId, ReviewResult } from './types';
+import type {
+  HistoryStats,
+  ModifiedFile,
+  ProviderId,
+  ReviewHistoryEntry,
+  ReviewResult,
+} from './types';
 
 export type WebviewToExtensionMessage =
   | { type: 'ready' }
@@ -11,7 +17,10 @@ export type WebviewToExtensionMessage =
   | { type: 'refreshFiles' }
   | { type: 'toggleFile'; path: string; selected: boolean }
   | { type: 'selectAll'; selected: boolean }
-  | { type: 'runReview' };
+  | { type: 'runReview' }
+  | { type: 'copyToClipboard'; text: string }
+  | { type: 'clearHistory' }
+  | { type: 'openInEditor' };
 
 export type ExtensionToWebviewMessage =
   | { type: 'state'; payload: WebviewState }
@@ -34,6 +43,9 @@ export interface WebviewState {
   workspaceName: string | null;
   isReviewing: boolean;
   lastReview: ReviewResult | null;
+  lastReviewTimestamp: string | null;
+  history: ReviewHistoryEntry[];
+  historyStats: HistoryStats;
   geminiModel: string;
   claudeModel: string;
 }

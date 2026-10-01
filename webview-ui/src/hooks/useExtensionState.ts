@@ -16,6 +16,16 @@ const defaultState: WebviewState = {
   workspaceName: null,
   isReviewing: false,
   lastReview: null,
+  lastReviewTimestamp: null,
+  history: [],
+  historyStats: {
+    totalReviews: 0,
+    totalCostUsd: 0,
+    totalPromptTokens: 0,
+    totalCompletionTokens: 0,
+    totalTokens: 0,
+    avgQualityScore: 0,
+  },
   geminiModel: 'gemini-3.5-flash-lite',
   claudeModel: 'claude-3-5-haiku-20241022',
 };
@@ -117,6 +127,14 @@ export function useExtensionState() {
     setApiKeyInput('');
   }, []);
 
+  const clearHistory = useCallback(() => {
+    postMessage({ type: 'clearHistory' });
+  }, []);
+
+  const openInEditor = useCallback(() => {
+    postMessage({ type: 'openInEditor' });
+  }, []);
+
   return {
     state,
     error,
@@ -135,6 +153,8 @@ export function useExtensionState() {
     toggleFile,
     selectAll,
     runReview,
+    clearHistory,
+    openInEditor,
     hasCurrentKey,
     currentKeyHint,
     currentModel,

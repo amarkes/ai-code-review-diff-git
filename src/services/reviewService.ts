@@ -1,6 +1,11 @@
 import * as path from 'node:path';
 import type { WorkspaceConfiguration } from 'vscode';
-import { DEFAULT_CLAUDE_MODEL, DEFAULT_GEMINI_MODEL } from '../shared/models';
+import {
+  DEFAULT_CLAUDE_MODEL,
+  DEFAULT_GEMINI_MODEL,
+  defaultModelForProvider,
+  isKnownModel,
+} from '../shared/models';
 import type {
   ModifiedFile,
   ProviderId,
@@ -35,10 +40,14 @@ export class ReviewService {
       throw new Error(`API key for ${provider} is not configured.`);
     }
 
-    const model =
+    const rawModel =
       provider === 'gemini'
         ? (this.config.get<string>('aiCodeReview.geminiModel') ?? DEFAULT_GEMINI_MODEL)
         : (this.config.get<string>('aiCodeReview.claudeModel') ?? DEFAULT_CLAUDE_MODEL);
+
+    const model = isKnownModel(provider, rawModel)
+      ? rawModel
+      : defaultModelForProvider(provider);
 
     const filesWithDiff = await Promise.all(
       selected.map(async (file) => ({

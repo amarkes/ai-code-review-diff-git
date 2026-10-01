@@ -1,3 +1,4 @@
+import { calculateEstimatedCost } from '../../shared/pricing';
 import type { ReviewRequest, ReviewResult } from '../../shared/types';
 import { throwProviderApiError } from './apiErrors';
 import { buildReviewPrompt } from './promptBuilder';
@@ -28,6 +29,11 @@ export async function reviewWithGemini(request: ReviewRequest): Promise<ReviewRe
 
   const data = (await response.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    usageMetadata?: {
+      promptTokenCount?: number;
+      candidatesTokenCount?: number;
+      totalTokenCount?: number;
+    };
   };
 
   const text =
@@ -37,5 +43,27 @@ export async function reviewWithGemini(request: ReviewRequest): Promise<ReviewRe
     throw new Error('Gemini returned an empty response.');
   }
 
-  return parseReviewResponse(text, request);
+  const result = parseReviewResponse(text, request);
+
+  const promptTokens = data.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
+  const completionTokens =
+    data.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
+  const totalTokens =
+    data.usageMetadata?.totalTokenCount ?? promptTokens + completionTokens;
+
+  const estimatedCostUsd = calculateEstimatedCost(
+    'gemini',
+    request.model,
+    promptTokens,
+    completionTokens,
+  );
+
+  result.usage = {
+    promptTokens,
+    completionTokens,
+    totalTokens,
+    estimatedCostUsd,
+  };
+
+  return result;
 }

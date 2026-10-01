@@ -2,7 +2,12 @@
   "app": {
     "title": "Revisão de Código IA",
     "workspace": "Workspace: {{name}}",
-    "noWorkspace": "Abra uma pasta para revisar alterações."
+    "noWorkspace": "Abra uma pasta para revisar alterações.",
+    "openInEditor": "Abrir no Centro"
+  },
+  "tabs": {
+    "review": "Revisão",
+    "history": "Histórico & Gastos"
   },
   "provider": {
     "label": "Provedor de IA",
@@ -44,6 +49,7 @@
     "needFiles": "selecione pelo menos um arquivo",
     "needWorkspace": "abra uma pasta no workspace",
     "running": "Revisando…",
+    "lastReviewAt": "Última revisão: {{date}}",
     "qualityScore": "Qualidade do código",
     "score": {
       "excellent": "Excelente — pronto para merge",
@@ -69,7 +75,30 @@
       "warning": "Aviso",
       "suggestion": "Sugestão",
       "info": "Info"
+    },
+    "fixPrompt": {
+      "title": "Prompt de correção",
+      "hint": "Cole no seu assistente de IA para corrigir {{count}} problema(s).",
+      "copy": "Copiar prompt",
+      "copied": "Copiado!",
+      "preview": "Ver prompt"
     }
+  },
+  "history": {
+    "kpi": {
+      "totalCost": "Custo Total Estimado",
+      "totalTokens": "Total de Tokens Usados",
+      "totalReviews": "Total de Revisões",
+      "avgScore": "Score Médio"
+    },
+    "recentTitle": "Histórico de Revisões",
+    "empty": "Nenhuma revisão registrada ainda. Execute sua primeira revisão acima!",
+    "clear": "Limpar Histórico",
+    "confirmClear": "Confirmar Limpeza?",
+    "cancel": "Cancelar",
+    "filesCount": "{{count}} arquivo(s)",
+    "workspace": "Workspace",
+    "summary": "Resumo"
   },
   "language": {
     "label": "Idioma"

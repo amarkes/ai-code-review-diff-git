@@ -2,7 +2,12 @@
   "app": {
     "title": "AI Code Review",
     "workspace": "Workspace: {{name}}",
-    "noWorkspace": "Open a folder to review changes."
+    "noWorkspace": "Open a folder to review changes.",
+    "openInEditor": "Open Centered"
+  },
+  "tabs": {
+    "review": "Review",
+    "history": "History & Costs"
   },
   "provider": {
     "label": "AI Provider",
@@ -44,6 +49,7 @@
     "needFiles": "select at least one file",
     "needWorkspace": "open a workspace folder",
     "running": "Reviewing…",
+    "lastReviewAt": "Last reviewed: {{date}}",
     "qualityScore": "Code quality",
     "score": {
       "excellent": "Excellent — ready to merge",
@@ -69,7 +75,30 @@
       "warning": "Warning",
       "suggestion": "Suggestion",
       "info": "Info"
+    },
+    "fixPrompt": {
+      "title": "Fix prompt",
+      "hint": "Paste into your AI assistant to fix {{count}} issue(s).",
+      "copy": "Copy prompt",
+      "copied": "Copied!",
+      "preview": "Show prompt"
     }
+  },
+  "history": {
+    "kpi": {
+      "totalCost": "Total Estimated Cost",
+      "totalTokens": "Total Tokens Used",
+      "totalReviews": "Total Reviews",
+      "avgScore": "Average Score"
+    },
+    "recentTitle": "Review History",
+    "empty": "No reviews recorded yet. Run your first review above!",
+    "clear": "Clear History",
+    "confirmClear": "Confirm Clear?",
+    "cancel": "Cancel",
+    "filesCount": "{{count}} file(s)",
+    "workspace": "Workspace",
+    "summary": "Summary"
   },
   "language": {
     "label": "Language"

@@ -3,7 +3,7 @@
   "displayName": "AI Code Review with Diff Git",
   "description": "Review modified files in your workspace using Gemini or Claude.",
   "icon": "./images/icon.png",
-  "version": "1.2.2",
+  "version": "1.2.12",
   "repository": {
     "type": "git",
     "url": "https://github.com/amarkes/ai-code-review-diff-git"
@@ -17,7 +17,8 @@
   ],
   "activationEvents": [
     "onView:aiCodeReview.sidebar",
-    "onCommand:aiCodeReview.openPanel"
+    "onCommand:aiCodeReview.openPanel",
+    "onCommand:aiCodeReview.openInEditor"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -39,12 +40,32 @@
         }
       ]
     },
+    "menus": {
+      "view/title": [
+        {
+          "command": "aiCodeReview.openInEditor",
+          "when": "view == aiCodeReview.sidebar",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aiCodeReview.refreshFiles",
+          "when": "view == aiCodeReview.sidebar",
+          "group": "navigation@2"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "aiCodeReview.openPanel",
         "title": "%commands.openPanel.title%",
         "category": "AI Code Review",
         "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "aiCodeReview.openInEditor",
+        "title": "%commands.openInEditor.title%",
+        "category": "AI Code Review",
+        "icon": "$(link-external)"
       },
       {
         "command": "aiCodeReview.refreshFiles",
@@ -91,13 +112,13 @@
     "vscode:prepublish": "npm run build",
     "compile": "npm run build",
     "build": "npm run build:extension && npm run build:webview",
-    "build:extension": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "build:extension": "tsc --noEmit && esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
     "build:webview": "cd webview-ui && npm run build",
     "watch": "concurrently \"npm run watch:extension\" \"npm run watch:webview\"",
     "watch:extension": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap --watch",
     "watch:webview": "cd webview-ui && npm run dev",
     "lint": "eslint src --ext .ts",
-    "package": "vsce package",
+    "package": "node scripts/package.js",
     "postinstall": "cd webview-ui && npm install"
   },
   "devDependencies": {
