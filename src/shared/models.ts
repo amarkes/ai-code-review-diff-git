@@ -10,10 +10,13 @@ export interface ModelOption {
 
 /** Cheapest first — default is the first entry per provider */
 export const GEMINI_MODELS: ModelOption[] = [
-  { id: 'gemini-2.5-flash-lite', provider: 'gemini', tier: 'economy' },
-  { id: 'gemini-2.0-flash-lite', provider: 'gemini', tier: 'economy' },
-  { id: 'gemini-2.5-flash', provider: 'gemini', tier: 'balanced' },
-  { id: 'gemini-2.0-flash', provider: 'gemini', tier: 'balanced' },
+  { id: 'gemini-3.5-flash-lite', provider: 'gemini', tier: 'economy' },
+  { id: 'gemini-3.1-flash-lite', provider: 'gemini', tier: 'economy' },
+  { id: 'gemini-3.5-flash', provider: 'gemini', tier: 'balanced' },
+  { id: 'gemini-3.6-flash', provider: 'gemini', tier: 'balanced' },
+  { id: 'gemini-3.7-flash', provider: 'gemini', tier: 'balanced' },
+  { id: 'gemini-3.8-flash', provider: 'gemini', tier: 'quality' },
+  { id: 'gemini-3.1-pro-preview', provider: 'gemini', tier: 'quality' },
 ];
 
 export const CLAUDE_MODELS: ModelOption[] = [

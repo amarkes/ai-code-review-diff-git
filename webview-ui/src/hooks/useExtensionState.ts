@@ -16,7 +16,7 @@ const defaultState: WebviewState = {
   workspaceName: null,
   isReviewing: false,
   lastReview: null,
-  geminiModel: 'gemini-2.5-flash-lite',
+  geminiModel: 'gemini-3.5-flash-lite',
   claudeModel: 'claude-3-5-haiku-20241022',
 };
 

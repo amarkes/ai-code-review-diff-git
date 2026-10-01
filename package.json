@@ -3,7 +3,7 @@
   "displayName": "AI Code Review with Diff Git",
   "description": "Review modified files in your workspace using Gemini or Claude.",
   "icon": "./images/icon.png",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/amarkes/ai-code-review-diff-git"
@@ -67,7 +67,7 @@
         },
         "aiCodeReview.geminiModel": {
           "type": "string",
-          "default": "gemini-2.5-flash-lite",
+          "default": "gemini-3.5-flash-lite",
           "description": "%config.geminiModel.description%"
         },
         "aiCodeReview.claudeModel": {

@@ -48,7 +48,7 @@ npm run watch
 | Chave | Descrição | Padrão |
 |-------|-----------|--------|
 | `aiCodeReview.provider` | `gemini` ou `claude` | `gemini` |
-| `aiCodeReview.geminiModel` | Modelo Gemini | `gemini-2.5-flash-lite` (mais barato) |
+| `aiCodeReview.geminiModel` | Modelo Gemini | `gemini-3.5-flash-lite` (mais barato) |
 | `aiCodeReview.claudeModel` | Modelo Claude | `claude-3-5-haiku-20241022` (mais barato) |
 | `aiCodeReview.language` | `en` ou `pt` | `en` |
 
