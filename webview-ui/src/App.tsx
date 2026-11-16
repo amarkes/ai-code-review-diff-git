@@ -27,6 +27,7 @@ function formatLastReviewDate(iso: string, locale: string): string {
 export function App() {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState<'review' | 'history'>('review');
+  const [aiFeedback, setAiFeedback] = useState('');
 
   const {
     state,
@@ -43,6 +44,7 @@ export function App() {
     toggleFile,
     selectAll,
     runReview,
+    clearReview,
     clearHistory,
     openInEditor,
     hasCurrentKey,
@@ -211,10 +213,71 @@ export function App() {
             onRefresh={refreshFiles}
           />
 
+          {/* Optional: Assistant Follow-up & Justifications */}
+          <details
+            className="rounded border border-vscode-border bg-white/[0.01] p-2 text-xs"
+            open={Boolean(aiFeedback)}
+          >
+            <summary className="cursor-pointer font-medium text-vscode-muted hover:text-vscode-fg flex items-center justify-between select-none">
+              <span className="flex items-center gap-1.5">
+                <span>💬</span>
+                <span>{t('review.followUp.summaryTitle')}</span>
+              </span>
+              {aiFeedback.trim() && (
+                <span className="text-[10px] text-green-400 font-semibold uppercase tracking-wide">
+                  ● {t('review.followUp.activeBadge')}
+                </span>
+              )}
+            </summary>
+            <div className="mt-2 space-y-1.5">
+              <p className="text-[11px] text-vscode-muted leading-tight">
+                {t('review.followUp.hint')}
+              </p>
+              <textarea
+                rows={4}
+                value={aiFeedback}
+                onChange={(e) => setAiFeedback(e.target.value)}
+                placeholder={t('review.followUp.placeholder')}
+                className="w-full rounded border border-vscode-inputBorder bg-vscode-input p-2 text-xs outline-none focus:border-vscode-focus font-mono"
+              />
+              {aiFeedback && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setAiFeedback('')}
+                    className="text-[11px] text-vscode-muted hover:text-vscode-fg underline"
+                  >
+                    {t('review.followUp.clear')}
+                  </button>
+                </div>
+              )}
+            </div>
+          </details>
+
           <div className="space-y-2">
-            <Button className="w-full" onClick={runReview} disabled={!canReview}>
-              {state.isReviewing ? t('review.running') : t('review.run')}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                className="flex-1"
+                onClick={() => runReview(aiFeedback.trim() || undefined)}
+                disabled={!canReview}
+              >
+                {state.isReviewing
+                  ? t('review.running')
+                  : aiFeedback.trim()
+                    ? t('review.followUp.runWithFeedback')
+                    : t('review.run')}
+              </Button>
+              {state.lastReview && (
+                <Button
+                  variant="secondary"
+                  onClick={clearReview}
+                  disabled={state.isReviewing}
+                  title={t('review.clear')}
+                >
+                  {t('review.clear')}
+                </Button>
+              )}
+            </div>
 
             {/* Last review indicator below the button */}
             {state.lastReviewTimestamp && (

@@ -31,28 +31,53 @@ export function parseReviewResponse(
     return fallbackFromMarkdown(raw, request);
   }
 
-  const files: FileReview[] = (parsed.files ?? []).map((file, index) => ({
-    path: file.path ?? request.files[index]?.path ?? `file-${index + 1}`,
-    summary: file.summary ?? '',
-    qualityScore: clampScore(file.qualityScore),
-    findings: (file.findings ?? []).map((finding) => ({
-      severity: VALID_SEVERITIES.has(finding.severity ?? '')
-        ? (finding.severity as FileReview['findings'][0]['severity'])
-        : 'info',
-      title: finding.title ?? 'Finding',
-      detail: finding.detail ?? '',
-      line: typeof finding.line === 'number' ? finding.line : undefined,
-    })),
-  }));
+  const returnedFiles = parsed.files ?? [];
+  const files: FileReview[] = request.files.map((reqFile, index) => {
+    let matched = returnedFiles.find(
+      (f) =>
+        f.path &&
+        (f.path === reqFile.path ||
+          reqFile.path.endsWith(f.path) ||
+          f.path.endsWith(reqFile.path)),
+    );
 
-  if (files.length === 0 && request.files.length > 0) {
-    return fallbackFromMarkdown(raw, request);
-  }
+    if (!matched && returnedFiles[index] && !returnedFiles[index].path) {
+      matched = returnedFiles[index];
+    }
+
+    if (matched) {
+      return {
+        path: reqFile.path,
+        summary: matched.summary ?? '',
+        qualityScore:
+          clampScore(matched.qualityScore) ?? clampScore(parsed.qualityScore) ?? 100,
+        findings: (matched.findings ?? []).map((finding) => ({
+          severity: VALID_SEVERITIES.has(finding.severity ?? '')
+            ? (finding.severity as FileReview['findings'][0]['severity'])
+            : 'info',
+          title: finding.title ?? 'Finding',
+          detail: finding.detail ?? '',
+          line: typeof finding.line === 'number' ? finding.line : undefined,
+        })),
+      };
+    }
+
+    return {
+      path: reqFile.path,
+      summary: '',
+      qualityScore: clampScore(parsed.qualityScore) ?? 100,
+      findings: [],
+    };
+  });
+
+  const totalFindings = files.reduce((sum, f) => sum + f.findings.length, 0);
 
   const overallScore =
-    clampScore(parsed.qualityScore) ??
-    averageDefined(files.map((f) => f.qualityScore)) ??
-    estimateScoreFromFindings(files);
+    totalFindings === 0
+      ? 100
+      : clampScore(parsed.qualityScore) ??
+        averageDefined(files.map((f) => f.qualityScore)) ??
+        estimateScoreFromFindings(files);
 
   return {
     provider: request.provider,

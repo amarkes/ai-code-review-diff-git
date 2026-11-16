@@ -174,7 +174,7 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
         this.postState();
         break;
       case 'runReview':
-        await this.runReview();
+        await this.runReview(message.aiFeedback);
         break;
       case 'copyToClipboard':
         await vscode.env.clipboard.writeText(message.text);
@@ -183,13 +183,17 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
         await this.historyService.clearHistory();
         this.postState();
         break;
+      case 'clearReview':
+        this.lastReview = null;
+        this.postState();
+        break;
       case 'openInEditor':
         await this.openInEditor();
         break;
     }
   }
 
-  private async runReview(): Promise<void> {
+  private async runReview(aiFeedback?: string): Promise<void> {
     const folder = vscode.workspace.workspaceFolders?.[0];
     if (!folder) {
       this.post({ type: 'reviewFailed', error: 'No workspace folder open.' });
@@ -200,6 +204,7 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
     const provider = (config.get<ProviderId>('aiCodeReview.provider') ?? 'gemini') as ProviderId;
 
     this.isReviewing = true;
+    this.lastReview = null;
     this.post({ type: 'reviewStarted' });
     this.postState();
 
@@ -212,7 +217,7 @@ export class CodeReviewWebviewProvider implements vscode.WebviewViewProvider {
         folder.uri.fsPath,
       );
 
-      const result = await reviewService.runReview(provider, this.files);
+      const result = await reviewService.runReview(provider, this.files, aiFeedback);
       this.lastReview = result;
 
       const selectedFiles = this.files.filter((f) => f.selected);

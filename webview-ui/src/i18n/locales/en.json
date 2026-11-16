@@ -44,6 +44,7 @@
   },
   "review": {
     "run": "Run review",
+    "clear": "Clear review",
     "disabledReason": "To enable: {{items}}",
     "needApiKey": "save an API key",
     "needFiles": "select at least one file",
@@ -82,6 +83,14 @@
       "copy": "Copy prompt",
       "copied": "Copied!",
       "preview": "Show prompt"
+    },
+    "followUp": {
+      "summaryTitle": "Validate assistant response / justifications",
+      "hint": "Paste the assistant's reply (what was changed and what was claimed as false positives). The reviewer will verify if justifications are sound.",
+      "placeholder": "Paste assistant response here (e.g. Fixed X and ignored Y because...)",
+      "activeBadge": "Active",
+      "clear": "Clear text",
+      "runWithFeedback": "Review evaluating justifications"
     }
   },
   "history": {

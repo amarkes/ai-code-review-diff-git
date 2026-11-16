@@ -44,6 +44,7 @@
   },
   "review": {
     "run": "Executar revisão",
+    "clear": "Limpar revisão",
     "disabledReason": "Para habilitar: {{items}}",
     "needApiKey": "salve uma chave de API",
     "needFiles": "selecione pelo menos um arquivo",
@@ -82,6 +83,14 @@
       "copy": "Copiar prompt",
       "copied": "Copiado!",
       "preview": "Ver prompt"
+    },
+    "followUp": {
+      "summaryTitle": "Validar resposta / justificativas do assistente",
+      "hint": "Cole a resposta do assistente (o que ele alterou e o que alegou ser falso positivo). O revisor irá checar se as justificativas são procedentes.",
+      "placeholder": "Cole aqui a resposta do assistente (ex: Corrigi X e ignorei Y porque...)",
+      "activeBadge": "Ativo",
+      "clear": "Limpar texto",
+      "runWithFeedback": "Revisar avaliando justificativas"
     }
   },
   "history": {

@@ -63,6 +63,7 @@ export function useExtensionState() {
         case 'reviewStarted':
           setError(null);
           setErrorCode(null);
+          setState((prev) => ({ ...prev, isReviewing: true, lastReview: null }));
           break;
       }
     });
@@ -107,8 +108,8 @@ export function useExtensionState() {
     postMessage({ type: 'selectAll', selected });
   }, []);
 
-  const runReview = useCallback(() => {
-    postMessage({ type: 'runReview' });
+  const runReview = useCallback((aiFeedback?: string) => {
+    postMessage({ type: 'runReview', aiFeedback });
   }, []);
 
   const hasCurrentKey =
@@ -129,6 +130,13 @@ export function useExtensionState() {
 
   const clearHistory = useCallback(() => {
     postMessage({ type: 'clearHistory' });
+  }, []);
+
+  const clearReview = useCallback(() => {
+    setError(null);
+    setErrorCode(null);
+    setState((prev) => ({ ...prev, lastReview: null, lastReviewTimestamp: null }));
+    postMessage({ type: 'clearReview' });
   }, []);
 
   const openInEditor = useCallback(() => {
@@ -153,6 +161,7 @@ export function useExtensionState() {
     toggleFile,
     selectAll,
     runReview,
+    clearReview,
     clearHistory,
     openInEditor,
     hasCurrentKey,

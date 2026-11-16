@@ -17,9 +17,10 @@ export type WebviewToExtensionMessage =
   | { type: 'refreshFiles' }
   | { type: 'toggleFile'; path: string; selected: boolean }
   | { type: 'selectAll'; selected: boolean }
-  | { type: 'runReview' }
+  | { type: 'runReview'; aiFeedback?: string }
   | { type: 'copyToClipboard'; text: string }
   | { type: 'clearHistory' }
+  | { type: 'clearReview' }
   | { type: 'openInEditor' };
 
 export type ExtensionToWebviewMessage =

@@ -78,4 +78,10 @@ export interface ReviewRequest {
     status: FileChangeStatus;
     diff: string;
   }>;
+  contextDocs?: Array<{
+    path: string;
+    content: string;
+  }>;
+  /** Feedback or explanations from an AI assistant who previously altered the code */
+  aiFeedback?: string;
 }

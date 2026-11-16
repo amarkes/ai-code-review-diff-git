@@ -15,6 +15,7 @@ import type {
 } from '../shared/types';
 import { reviewWithClaude } from './ai/claudeProvider';
 import { reviewWithGemini } from './ai/geminiProvider';
+import { collectRepositoryContext } from './contextService';
 import type { GitService } from './gitService';
 import type { SecretsService } from './secretsService';
 
@@ -29,6 +30,7 @@ export class ReviewService {
   async runReview(
     provider: ProviderId,
     files: ModifiedFile[],
+    aiFeedback?: string,
   ): Promise<ReviewResult> {
     const selected = files.filter((file) => file.selected);
     if (selected.length === 0) {
@@ -49,13 +51,16 @@ export class ReviewService {
       ? rawModel
       : defaultModelForProvider(provider);
 
-    const filesWithDiff = await Promise.all(
-      selected.map(async (file) => ({
-        path: path.relative(this.workspaceRoot, file.path),
-        status: file.status,
-        diff: await this.gitService.getDiff(file.path, file.status),
-      })),
-    );
+    const [filesWithDiff, contextDocs] = await Promise.all([
+      Promise.all(
+        selected.map(async (file) => ({
+          path: path.relative(this.workspaceRoot, file.path),
+          status: file.status,
+          diff: await this.gitService.getDiff(file.path, file.status),
+        })),
+      ),
+      collectRepositoryContext(this.workspaceRoot).catch(() => []),
+    ]);
 
     const language = (this.config.get<ReviewLanguage>('aiCodeReview.language') ?? 'en') as ReviewLanguage;
 
@@ -65,6 +70,8 @@ export class ReviewService {
       apiKey,
       language,
       files: filesWithDiff,
+      contextDocs,
+      aiFeedback: aiFeedback?.trim() || undefined,
     };
 
     return provider === 'gemini'
